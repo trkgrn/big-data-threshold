@@ -1,6 +1,7 @@
 package com.trkgrn_theomer.bigdatathresholding.api.utility;
 
-import com.trkgrn_theomer.bigdatathresholding.api.model.Complaint;
+import com.trkgrn_theomer.bigdatathresholding.api.model.concretes.Complaint;
+import com.trkgrn_theomer.bigdatathresholding.api.model.concretes.Threshold;
 import com.trkgrn_theomer.bigdatathresholding.api.service.ComplaintService;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -16,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.LongStream;
 
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
@@ -24,6 +26,7 @@ import static java.util.Objects.nonNull;
 @Component
 public class CSVUtil {
     private static int control = 0;
+    private static long counter = 0;
     private static final String RAW_DATA_FILE = "src/main/java/com/trkgrn_theomer/bigdatathresholding/api/data/raw/rows.csv";
     private static final String RAW_SPLIT_DIRECTORY = "src/main/java/com/trkgrn_theomer/bigdatathresholding/api/data/raw/split";
     private static final String REGULAR_DATA_FILE = "src/main/java/com/trkgrn_theomer/bigdatathresholding/api/data/regular/regular-data.csv";
@@ -35,6 +38,26 @@ public class CSVUtil {
     public CSVUtil(StringUtil stringUtil, ComplaintService complaintService) {
         this.stringUtil = stringUtil;
         this.complaintService = complaintService;
+    }
+
+
+    public void printRegularDataInDatabase() throws IOException {
+        List<File> files = splitRegularDataFile(100000);
+        files.parallelStream().forEach(file -> {
+            try {
+                List<Complaint> complaints = getRegularData(file);
+                System.out.println(file.getName() + " adlı dosyadan çekilen veri sayısı: " + complaints.size());
+//                     IntStream.range(0,complaints.size()).parallel().forEach(index -> {
+//                         complaintService.save(complaints.get(index));
+//                     });
+                complaintService.saveAll(complaints);
+                System.out.println(file.getName() + " adlı dosyadan çekilen veriler kaydedildi");
+            } catch (IOException e) {
+                e.printStackTrace();
+
+            }
+
+        });
     }
 
 
@@ -54,7 +77,7 @@ public class CSVUtil {
                 BufferedReader bufferedReader = new BufferedReader(fileReader)
         ) {
             long currentFileRecordCount = 0;
-            File currentFile = new File(format(REGULAR_SPLIT_DIRECTORY+"/regular-data-%d.csv", splittedFiles.size()));
+            File currentFile = new File(format(REGULAR_SPLIT_DIRECTORY + "/regular-data-%d.csv", splittedFiles.size()));
             FileWriter currentFileWriter = new FileWriter(currentFile);
             BufferedWriter currentBufferedWriter = new BufferedWriter(currentFileWriter);
             String line = bufferedReader.readLine();
@@ -79,7 +102,7 @@ public class CSVUtil {
                     splittedFiles.add(currentFile);
 
                     currentFileRecordCount = 0;
-                    currentFile = new File(format(REGULAR_SPLIT_DIRECTORY+"/regular-data-%d.csv", splittedFiles.size()));
+                    currentFile = new File(format(REGULAR_SPLIT_DIRECTORY + "/regular-data-%d.csv", splittedFiles.size()));
                     currentFileWriter = new FileWriter(currentFile);
                     currentBufferedWriter = new BufferedWriter(currentFileWriter);
                 } else if (isNull(line)) {
@@ -102,15 +125,25 @@ public class CSVUtil {
         return splittedFiles;
     }
 
-    public void findThreshold(String file) throws IOException {
-        File csvFile = new File(file);
+    public void findThreshold(int pageNo, int pageSize) throws IOException {
+        List<Threshold> thresholds = new ArrayList<>();
+        List<Complaint> complaints = complaintService.getAllByPage(pageNo, pageSize);
+        System.out.println("Data1 geldi:"+pageNo+":"+pageSize);
+        long count = complaintService.count();
+        long size = count / 10;
+        complaints.stream().forEach(origin -> {
+            LongStream.range(0,11).forEach(page ->{
+                complaintService.getAllByPage((int)page,(int)size)
+                        .stream().forEach(destination->{
+                          double average =  stringUtil.getSimilarityAverage(new String[]{origin.getCompany(),destination.getCompany()});
+                            counter++;
+                          //  System.out.println(counter +" " + average + " " +origin.getCompany() + "### " + destination.getCompany());
+                        });
+                System.out.println(counter + " C.ID: "  );
 
-        InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(csvFile));
-        CSVParser csvParser = CSVFormat.DEFAULT.parse(inputStreamReader);
-        List<CSVRecord> csvRecords = csvParser.getRecords();
+            });
+        });
 
-        csvRecords.stream().parallel().forEach(csvRecord -> {});
-        csvParser.close();
     }
 
     public List<Complaint> getRegularData(File file) throws IOException {
@@ -166,10 +199,10 @@ public class CSVUtil {
     }
 
 
-    private boolean isContainsNullValue(Complaint complaint){
+    private boolean isContainsNullValue(Complaint complaint) {
         if (!complaint.getProduct().equals("") && !complaint.getIssue().equals("") && !complaint.getCompany().equals("") &&
                 !complaint.getState().equals("") && !complaint.getZipCode().equals("") && !complaint.getComplaintId().equals(""))
-           return false;
+            return false;
         return true;
     }
 
@@ -189,18 +222,17 @@ public class CSVUtil {
         return complaint;
     }
 
-    private Complaint getComplaintByRegularData(CSVRecord csvRecord){
+    private Complaint getComplaintByRegularData(CSVRecord csvRecord) {
         Complaint complaint = new Complaint();
-     if (csvRecord.size()==6){
+        if (csvRecord.size() == 6) {
             complaint.setProduct(csvRecord.get(0));
             complaint.setIssue(csvRecord.get(1));
             complaint.setCompany(csvRecord.get(2));
             complaint.setState(csvRecord.get(3));
             complaint.setZipCode(csvRecord.get(4));
             complaint.setComplaintId(csvRecord.get(5));
-        }
-     else
-         return null;
+        } else
+            return null;
 
         return complaint;
     }

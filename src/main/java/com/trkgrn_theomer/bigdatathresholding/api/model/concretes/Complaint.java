@@ -1,4 +1,4 @@
-package com.trkgrn_theomer.bigdatathresholding.api.model;
+package com.trkgrn_theomer.bigdatathresholding.api.model.concretes;
 
 import lombok.Data;
 

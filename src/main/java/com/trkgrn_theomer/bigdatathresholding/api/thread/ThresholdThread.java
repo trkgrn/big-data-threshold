@@ -1,8 +1,9 @@
 package com.trkgrn_theomer.bigdatathresholding.api.thread;
 
+import com.trkgrn_theomer.bigdatathresholding.api.utility.CSVUtil;
 import lombok.Data;
 
-import java.io.File;
+import java.io.IOException;
 
 @Data
 public class ThresholdThread extends Thread {
@@ -10,23 +11,29 @@ public class ThresholdThread extends Thread {
     private long endTime;
     private long totalTime;
 
-    private File file;
+    private final CSVUtil csvUtil;
 
-    public ThresholdThread(String name) {
+    private int pageNo;
+    private int pageSize;
+
+    public ThresholdThread(String name, CSVUtil csvUtil) {
         super(name);
+        this.csvUtil = csvUtil;
     }
 
     public void run() {
         System.out.println(getName() + " is starting.");
         this.startTime = System.currentTimeMillis();
+
         try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
+            csvUtil.findThreshold(pageNo,pageSize);
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(file.getPath());
+
         this.endTime = System.currentTimeMillis();
         this.totalTime = endTime - startTime;
         System.out.println(getName() + " is terminating");
     }
+
 }

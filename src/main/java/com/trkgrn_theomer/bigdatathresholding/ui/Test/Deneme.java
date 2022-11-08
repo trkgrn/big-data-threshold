@@ -4,16 +4,22 @@
  */
 package com.trkgrn_theomer.bigdatathresholding.ui.Test;
 
-import com.trkgrn_theomer.bigdatathresholding.api.model.Complaint;
+import com.trkgrn_theomer.bigdatathresholding.api.model.concretes.Complaint;
+import com.trkgrn_theomer.bigdatathresholding.api.model.dtos.SimilarityAverage;
 import com.trkgrn_theomer.bigdatathresholding.api.service.ComplaintService;
+import com.trkgrn_theomer.bigdatathresholding.api.service.ThresholdService;
+import com.trkgrn_theomer.bigdatathresholding.api.thread.TestThread;
+import com.trkgrn_theomer.bigdatathresholding.api.thread.ThresholdThread;
 import com.trkgrn_theomer.bigdatathresholding.api.utility.CSVUtil;
+import com.trkgrn_theomer.bigdatathresholding.api.utility.StringUtil;
+import com.trkgrn_theomer.bigdatathresholding.api.utility.TableUtil;
+import com.trkgrn_theomer.bigdatathresholding.api.utility.ThreadUtil;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 /**
  * @author trkgrn
@@ -26,11 +32,19 @@ public class Deneme extends javax.swing.JFrame {
      */
 
     private final CSVUtil csvUtil;
+    private final StringUtil stringUtil;
     private final ComplaintService complaintService;
+    private final ThresholdService thresholdService;
+    private final ThreadUtil threadUtil;
+    private final TableUtil tableUtil;
 
-    public Deneme(CSVUtil csvUtil, ComplaintService complaintService) {
+    public Deneme(CSVUtil csvUtil, StringUtil stringUtil, ComplaintService complaintService, ThresholdService thresholdService, ThreadUtil threadUtil, TableUtil tableUtil) {
         this.csvUtil = csvUtil;
+        this.stringUtil = stringUtil;
         this.complaintService = complaintService;
+        this.thresholdService = thresholdService;
+        this.threadUtil = threadUtil;
+        this.tableUtil = tableUtil;
         initComponents();
     }
 
@@ -45,6 +59,10 @@ public class Deneme extends javax.swing.JFrame {
 
         runButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        runButton1 = new javax.swing.JButton();
+        runButton2 = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -57,27 +75,80 @@ public class Deneme extends javax.swing.JFrame {
         });
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        jLabel1.setText("YAZLAB 2 PROJE");
+
+        runButton1.setText("RUN1");
+        runButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                runButton1ActionPerformed(evt);
+            }
+        });
+
+        runButton2.setText("RUN2");
+        runButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                runButton2ActionPerformed(evt);
+            }
+        });
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Kayıt1", "Kayıt2", "Benzerlik Oranı"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(jTable1);
+        if (jTable1.getColumnModel().getColumnCount() > 0) {
+            jTable1.getColumnModel().getColumn(0).setResizable(false);
+            jTable1.getColumnModel().getColumn(1).setResizable(false);
+            jTable1.getColumnModel().getColumn(2).setResizable(false);
+        }
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                                .addGap(133, 133, 133)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jLabel1)
-                                        .addComponent(runButton, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addContainerGap(133, Short.MAX_VALUE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(44, 44, 44)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(runButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(runButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(runButton, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1)
+                .addGap(54, 54, 54)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 845, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(25, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
                                 .addGap(26, 26, 26)
-                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 132, Short.MAX_VALUE)
-                                .addComponent(runButton, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(82, 82, 82))
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(51, 51, 51)
+                                .addComponent(runButton, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(37, 37, 37)
+                        .addComponent(runButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(31, 31, 31)
+                        .addComponent(runButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(49, 49, 49)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 449, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(35, Short.MAX_VALUE))
         );
 
         pack();
@@ -85,28 +156,72 @@ public class Deneme extends javax.swing.JFrame {
 
     private void runButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {//GEN-FIRST:event_runButtonActionPerformed
         System.out.println("Deneme RUN button basıldı");
-        csvUtil.createRegularData();
-//        complaintService.deleteAll();
-//        System.out.println("Sildi");
-//        List<File> files = csvUtil.splitRegularDataFile(100000);
-//             files.parallelStream().forEach(file -> {
-//                 try {
-//                     List<Complaint> complaints =  csvUtil.getRegularData(file);
-//                     System.out.println(file.getName() +" adlı dosyadan çekilen veri sayısı: "+complaints.size());
-////                     IntStream.range(0,complaints.size()).parallel().forEach(index -> {
-////                         complaintService.save(complaints.get(index));
-////                     });
-//                        complaintService.saveAll(complaints);
-//                     System.out.println(file.getName() +" adlı dosyadan çekilen veriler kaydedildi");
-//                 } catch (IOException e) {
-//                     e.printStackTrace();
-//
-//                 }
-//
-//             });
-        //   complaintService.saveAll(csvUtil.getAllRegularData());
+//        csvUtil.createRegularData();
+        System.out.println(complaintService.count());
+        long threadCount = 10;
+        long dataCount = complaintService.count();
+        long pageSize = dataCount / threadCount;
+        long total = 0;
+        List<ThresholdThread> threads = new ArrayList<>();
+        for (int i = 0; i <=threadCount ; i++) {
+
+            ThresholdThread thread= new ThresholdThread("ThresholdThread"+i,csvUtil);
+            thread.setPageNo(i);
+            thread.setPageSize((int) pageSize);
+            thread.start();
+            threads.add(thread);
+        }
+
+        threadUtil.printProcessTimeByThreads(threads);
+
         System.out.println("Bitti");
     }//GEN-LAST:event_runButtonActionPerformed
+
+    private void runButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButton1ActionPerformed
+        // TODO add your handling code here:
+        List<String> products = complaintService.getCompanies();
+        System.out.println(products.size());
+
+        int threadCount = 7;
+        int dataCount = products.size();
+        int pageSize = dataCount / (threadCount);
+        int total = 0;
+        List<TestThread> threads = new ArrayList<>();
+        for (int i = 0; i < threadCount ; i++) {
+            TestThread thread= new TestThread("TestThread"+i, stringUtil, thresholdService, complaintService);
+            thread.setAllData(products);
+            thread.setPartData(complaintService.getCompaniesByPage(i,pageSize));
+            threads.add(thread);
+        }
+
+        if (dataCount % threadCount!=0){ // fazladan iş kaldıysa
+            int remainingDataCount = dataCount % threadCount;
+            for (int i=0;i<remainingDataCount;i++){
+                threads.get(i).getPartData().add(products.get(dataCount-1-i));
+            }
+        }
+
+        threads.stream().forEach(thread->{
+            thread.start();
+        });
+
+        threadUtil.printProcessTimeByThreads2(threads);
+        List<SimilarityAverage> similarityAverages = new ArrayList<>();
+        threads.stream().forEach(thread->{
+           similarityAverages.addAll(thread.getSimilarityAverages());
+        });
+
+        tableUtil.showTable(jTable1,similarityAverages);
+
+
+
+    }//GEN-LAST:event_runButton1ActionPerformed
+
+    private void runButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButton2ActionPerformed
+        // TODO add your handling code here:
+        List<Complaint> companies = complaintService.getAllByProduct("Bank account service");
+        System.out.println(companies.size());
+    }//GEN-LAST:event_runButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -114,6 +229,10 @@ public class Deneme extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable jTable1;
     private javax.swing.JButton runButton;
+    private javax.swing.JButton runButton1;
+    private javax.swing.JButton runButton2;
     // End of variables declaration//GEN-END:variables
 }
