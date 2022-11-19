@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ComplaintService {
@@ -60,6 +61,14 @@ public class ComplaintService {
 
     public List<Complaint> getAllByProduct(String product){
         return this.complaintRepository.getAllByProductName(product);
+    }
+
+    public List<Complaint> getAllByCompany(String company){
+        return this.complaintRepository.getAllByCompanyName(company);
+    }
+
+    public Complaint getComplaintById(String complaintId){
+        return this.complaintRepository.getByComplaintId(complaintId);
     }
 
 

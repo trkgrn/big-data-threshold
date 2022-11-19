@@ -1,12 +1,14 @@
 package com.trkgrn_theomer.bigdatathresholding.api.model.concretes;
 
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 
 import javax.persistence.*;
 
 @Entity
 @Data
 @Table(schema = "public",name = "complaint")
+@FieldNameConstants
 public class Complaint {
     @Id
     @Column(name = "complaint_id")

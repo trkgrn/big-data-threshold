@@ -1,7 +1,7 @@
 package com.trkgrn_theomer.bigdatathresholding.api.utility;
 
 import com.trkgrn_theomer.bigdatathresholding.api.model.concretes.Complaint;
-import com.trkgrn_theomer.bigdatathresholding.api.model.concretes.Threshold;
+import com.trkgrn_theomer.bigdatathresholding.api.model.dtos.Threshold;
 import com.trkgrn_theomer.bigdatathresholding.api.service.ComplaintService;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -128,18 +128,18 @@ public class CSVUtil {
     public void findThreshold(int pageNo, int pageSize) throws IOException {
         List<Threshold> thresholds = new ArrayList<>();
         List<Complaint> complaints = complaintService.getAllByPage(pageNo, pageSize);
-        System.out.println("Data1 geldi:"+pageNo+":"+pageSize);
+        System.out.println("Data1 geldi:" + pageNo + ":" + pageSize);
         long count = complaintService.count();
         long size = count / 10;
         complaints.stream().forEach(origin -> {
-            LongStream.range(0,11).forEach(page ->{
-                complaintService.getAllByPage((int)page,(int)size)
-                        .stream().forEach(destination->{
-                          double average =  stringUtil.getSimilarityAverage(new String[]{origin.getCompany(),destination.getCompany()});
+            LongStream.range(0, 11).forEach(page -> {
+                complaintService.getAllByPage((int) page, (int) size)
+                        .stream().forEach(destination -> {
+                            double average = stringUtil.getSimilarityAverage(new String[]{origin.getCompany(), destination.getCompany()});
                             counter++;
-                          //  System.out.println(counter +" " + average + " " +origin.getCompany() + "### " + destination.getCompany());
+                            //  System.out.println(counter +" " + average + " " +origin.getCompany() + "### " + destination.getCompany());
                         });
-                System.out.println(counter + " C.ID: "  );
+                System.out.println(counter + " C.ID: ");
 
             });
         });
@@ -170,25 +170,35 @@ public class CSVUtil {
         CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT
                 .withHeader("Product", "Issue", "Company", "State", "ZIP Code", "Complaint ID"));
 
-
         long start = System.currentTimeMillis();
+
+        List<Complaint> complaints = new ArrayList<>();
 
         for (CSVRecord csvRecord : csvParser) {
             control++;
             if (control == 1)
                 continue;
 
-            printRecord(csvPrinter, getComplaintByRawData(csvRecord));
+            Complaint complaint = getComplaintByRawData(csvRecord);
 
-//            if (control > 1000)
-//                break;
+            if (!isContainsNullValue(complaint))
+                complaints.add(complaint);
+//            printRecord(csvPrinter, getComplaintByRawData(csvRecord));
         }
         long end = System.currentTimeMillis();
         long total = end - start;
         csvPrinter.flush();
         csvParser.close();
 
-        System.out.println(total + "ms");
+        System.out.println(total + "ms, Size: " + complaints.size());
+
+        start = System.currentTimeMillis();
+        complaints.parallelStream().forEach(complaint -> complaintService.save(complaint));
+        end = System.currentTimeMillis();
+        total = end - start;
+
+        System.out.println("Veritabanına yazıldı: " +total);
+
         control = 0;
     }
 
@@ -197,7 +207,6 @@ public class CSVUtil {
             csvPrinter.printRecord(complaint.getProduct(), complaint.getIssue(), complaint.getCompany(),
                     complaint.getState(), complaint.getZipCode(), complaint.getComplaintId());
     }
-
 
     private boolean isContainsNullValue(Complaint complaint) {
         if (!complaint.getProduct().equals("") && !complaint.getIssue().equals("") && !complaint.getCompany().equals("") &&
@@ -212,12 +221,12 @@ public class CSVUtil {
         complaint.setProduct(stringUtil.extractStopwords(stringUtil.extractPunctuations(csvRecord.get(1))));
         complaint.setIssue(stringUtil.extractStopwords(stringUtil.extractPunctuations(csvRecord.get(3))));
         complaint.setCompany(stringUtil.extractStopwords(stringUtil.extractPunctuations(csvRecord.get(7))));
-        complaint.setState(stringUtil.extractStopwords(stringUtil.extractPunctuations(csvRecord.get(8))));
-        complaint.setZipCode(stringUtil.extractStopwords(stringUtil.extractPunctuations(csvRecord.get(9))));
-        complaint.setComplaintId(stringUtil.extractStopwords(stringUtil.extractPunctuations(csvRecord.get(17))));
+        complaint.setState(csvRecord.get(8));
+        complaint.setZipCode(csvRecord.get(9));
+        complaint.setComplaintId(csvRecord.get(17));
 
-        System.out.println("-------" + control + "----------");
-        System.out.println(complaint);
+        //  System.out.println("-------" + control + "----------");
+        //  System.out.println(complaint);
 
         return complaint;
     }

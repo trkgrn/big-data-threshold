@@ -1,7 +1,11 @@
 package com.trkgrn_theomer.bigdatathresholding.api.utility;
 
+import com.trkgrn_theomer.bigdatathresholding.api.model.concretes.Complaint;
+import com.trkgrn_theomer.bigdatathresholding.api.model.dtos.LongData;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,20 +85,18 @@ public class StringUtil {
     public String extractStopwords(String text) {
         List<String> wordsList = new ArrayList<String>();
 
-        text = text.trim().replaceAll("\\s+", " ");
+        text = text.trim().replaceAll("\\s+", " "); // Arada birden fazla bosluk varsa tek bosluga indir
         String[] words = text.split(" ");
 
         for (String word : words) {
             wordsList.add(word);
         }
 
-
-        wordsList = wordsList.stream().map(it -> {
-            if (STOPWORDS.contains(it.toLowerCase(Locale.ENGLISH))) {
-                return null;
+        wordsList = wordsList.stream().map(word -> {
+            if (STOPWORDS.contains(word.toLowerCase(Locale.ENGLISH))) {
+                return null; // Stopword varsa null döndür
             }
-
-            return it;
+            return word;
         }).collect(Collectors.toList());
 
         wordsList.removeIf(Objects::isNull);
@@ -109,12 +111,11 @@ public class StringUtil {
     public double getSimilarityAverage(String[] data) {
         double similarityAverage = 0.0;
         int similarWordCount = 0;
-        double wordCount = getLongDataWordCount(data[0], data[1]);
-        int longDataIndex = getLongDataIndex(data[0], data[1]);
-        int shortDataIndex = longDataIndex == 0 ? 1 : 0;
+        LongData longData = getLongData(data[0], data[1]);
+        double wordCount = longData.getWordCount();
+        int shortDataIndex = longData.getIndex() == 0 ? 1 : 0;
 
-
-        for (String selectedWordByLongData : data[longDataIndex].split(" ")) {
+        for (String selectedWordByLongData : data[longData.getIndex()].split(" ")) {
             for (String selectedWordByShortData : data[shortDataIndex].split(" ")) {
                 if (selectedWordByLongData.toLowerCase(Locale.ENGLISH).equals(selectedWordByShortData.toLowerCase(Locale.ENGLISH))) {
                     similarWordCount++;
@@ -127,18 +128,49 @@ public class StringUtil {
         return similarityAverage;
     }
 
-
-    private static int getLongDataWordCount(String data1, String data2) {
+    private static LongData getLongData(String data1, String data2){
         String[] words1 = data1.split(" ");
         String[] words2 = data2.split(" ");
         int wordCount = words1.length >= words2.length ? words1.length : words2.length;
-        return wordCount;
+        int index = words1.length >= words2.length ? 0 : 1;
+        return new LongData(index,wordCount);
     }
 
-    private static int getLongDataIndex(String data1, String data2) {
-        String[] words1 = data1.split(" ");
-        String[] words2 = data2.split(" ");
-        int index = words1.length >= words2.length ? 0 : 1;
-        return index;
+    public List<String> distinctColumn(List<Complaint> allData,String selectedColumn)  {
+       return allData.stream().parallel().map(data -> {
+                   Field field = null;
+                   try {
+                       field = data.getClass().getDeclaredField(selectedColumn);
+                       field.setAccessible(true);
+                       return field.get(data).toString();
+                   } catch (Exception e) {
+                       e.printStackTrace();
+                   }
+                   return null;
+               }).collect(Collectors.toList())
+                .parallelStream()
+                .distinct()
+                .collect(Collectors.toList());
     }
+
+    public List<Complaint> getComplaintsByProperty(List<Complaint> allData, String selectedColumn, String value){
+
+        return allData.parallelStream().map(data->{
+            Field field = null;
+            try {
+                field = data.getClass().getDeclaredField(selectedColumn);
+                field.setAccessible(true);
+
+                if (field.get(data).toString().equals(value))
+                    return data;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }).collect(Collectors.toList())
+                .parallelStream()
+                .filter(complaint -> Objects.nonNull(complaint))
+                .collect(Collectors.toList());
+    }
+
 }

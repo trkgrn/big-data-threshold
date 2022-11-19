@@ -1,10 +1,12 @@
 package com.trkgrn_theomer.bigdatathresholding.api.utility;
 
 
+import com.trkgrn_theomer.bigdatathresholding.api.model.concretes.Complaint;
 import com.trkgrn_theomer.bigdatathresholding.api.thread.TestThread;
 import com.trkgrn_theomer.bigdatathresholding.api.thread.ThresholdThread;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -46,6 +48,22 @@ public class ThreadUtil {
             System.out.println(myThread.getName() + " adlı " + myThread.getId() + " ID'sine sahip threadin toplam çalışma" +
                     " süresi " + myThread.getTotalTime() + " ms");
         });
+    }
+
+    public List<List<Complaint>> divideToJob(List<Complaint> complaints, int threadCount){
+        int dataCount = complaints.size();
+        int dividedJobCount = dataCount / threadCount;
+        int remainingDataCount = dataCount % threadCount;
+        List<List<Complaint>> jobs = new ArrayList<>();
+        for (int i = 0; i < threadCount ; i++) {
+            if (i==threadCount-1 && remainingDataCount != 0)
+                jobs.add(complaints.subList(i*dividedJobCount,dataCount));
+            else
+                jobs.add(complaints.subList(i*dividedJobCount,(i+1)*dividedJobCount));
+        }
+        int total = jobs.stream().mapToInt(List::size).sum();
+        System.out.println("Toplam İş: "+total);
+        return jobs;
     }
 
 }

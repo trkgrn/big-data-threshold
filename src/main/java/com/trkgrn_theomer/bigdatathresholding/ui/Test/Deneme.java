@@ -5,9 +5,8 @@
 package com.trkgrn_theomer.bigdatathresholding.ui.Test;
 
 import com.trkgrn_theomer.bigdatathresholding.api.model.concretes.Complaint;
-import com.trkgrn_theomer.bigdatathresholding.api.model.dtos.SimilarityAverage;
+import com.trkgrn_theomer.bigdatathresholding.api.model.dtos.Threshold;
 import com.trkgrn_theomer.bigdatathresholding.api.service.ComplaintService;
-import com.trkgrn_theomer.bigdatathresholding.api.service.ThresholdService;
 import com.trkgrn_theomer.bigdatathresholding.api.thread.TestThread;
 import com.trkgrn_theomer.bigdatathresholding.api.thread.ThresholdThread;
 import com.trkgrn_theomer.bigdatathresholding.api.utility.CSVUtil;
@@ -18,8 +17,7 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author trkgrn
@@ -34,15 +32,13 @@ public class Deneme extends javax.swing.JFrame {
     private final CSVUtil csvUtil;
     private final StringUtil stringUtil;
     private final ComplaintService complaintService;
-    private final ThresholdService thresholdService;
     private final ThreadUtil threadUtil;
     private final TableUtil tableUtil;
 
-    public Deneme(CSVUtil csvUtil, StringUtil stringUtil, ComplaintService complaintService, ThresholdService thresholdService, ThreadUtil threadUtil, TableUtil tableUtil) {
+    public Deneme(CSVUtil csvUtil, StringUtil stringUtil, ComplaintService complaintService, ThreadUtil threadUtil, TableUtil tableUtil) {
         this.csvUtil = csvUtil;
         this.stringUtil = stringUtil;
         this.complaintService = complaintService;
-        this.thresholdService = thresholdService;
         this.threadUtil = threadUtil;
         this.tableUtil = tableUtil;
         initComponents();
@@ -63,6 +59,7 @@ public class Deneme extends javax.swing.JFrame {
         runButton2 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        threadCount = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -85,25 +82,26 @@ public class Deneme extends javax.swing.JFrame {
 
         runButton2.setText("RUN2");
         runButton2.addActionListener(new java.awt.event.ActionListener() {
+            @SneakyThrows
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 runButton2ActionPerformed(evt);
             }
         });
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
+                new Object[][]{
 
-            },
-            new String [] {
-                "Kayıt1", "Kayıt2", "Benzerlik Oranı"
-            }
+                },
+                new String[]{
+                        "Kayıt1", "Kayıt2", "Benzerlik Oranı"
+                }
         ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, false
+            boolean[] canEdit = new boolean[]{
+                    false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
+                return canEdit[columnIndex];
             }
         });
         jScrollPane1.setViewportView(jTable1);
@@ -116,112 +114,129 @@ public class Deneme extends javax.swing.JFrame {
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(44, 44, 44)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(runButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(runButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(runButton, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
-                .addGap(54, 54, 54)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 845, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(25, Short.MAX_VALUE))
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addGap(44, 44, 44)
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                                        .addComponent(runButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(runButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(runButton, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addGap(76, 76, 76)
+                                                .addComponent(threadCount, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel1)
+                                .addGap(54, 54, 54)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 845, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(25, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(26, 26, 26)
-                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(51, 51, 51)
-                                .addComponent(runButton, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(37, 37, 37)
-                        .addComponent(runButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(31, 31, 31)
-                        .addComponent(runButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(49, 49, 49)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 449, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(35, Short.MAX_VALUE))
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addGroup(layout.createSequentialGroup()
+                                                                .addGap(26, 26, 26)
+                                                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                        .addGroup(layout.createSequentialGroup()
+                                                                .addGap(51, 51, 51)
+                                                                .addComponent(runButton, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                .addGap(37, 37, 37)
+                                                .addComponent(runButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(31, 31, 31)
+                                                .addComponent(runButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(47, 47, 47)
+                                                .addComponent(threadCount, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addGap(49, 49, 49)
+                                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 449, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addContainerGap(35, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void runButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {//GEN-FIRST:event_runButtonActionPerformed
-        System.out.println("Deneme RUN button basıldı");
-//        csvUtil.createRegularData();
-        System.out.println(complaintService.count());
-        long threadCount = 10;
-        long dataCount = complaintService.count();
-        long pageSize = dataCount / threadCount;
-        long total = 0;
-        List<ThresholdThread> threads = new ArrayList<>();
-        for (int i = 0; i <=threadCount ; i++) {
+        List<Complaint> allData = complaintService.getAll();
+        long start = System.currentTimeMillis();
+        List<Complaint> complaints = stringUtil.getComplaintsByProperty(allData,"company","TRANSUNION INTERMEDIATE HOLDINGS");
+      //  complaints.removeIf(Objects::isNull);
+        System.out.println(System.currentTimeMillis() - start);
 
-            ThresholdThread thread= new ThresholdThread("ThresholdThread"+i,csvUtil);
-            thread.setPageNo(i);
-            thread.setPageSize((int) pageSize);
-            thread.start();
-            threads.add(thread);
-        }
+           //     System.out.println(products);
+        System.out.println(complaints.size());
 
-        threadUtil.printProcessTimeByThreads(threads);
-
-        System.out.println("Bitti");
     }//GEN-LAST:event_runButtonActionPerformed
 
-    private void runButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButton1ActionPerformed
-        // TODO add your handling code here:
-        List<String> products = complaintService.getCompanies();
-        System.out.println(products.size());
-
-        int threadCount = 7;
-        int dataCount = products.size();
-        int pageSize = dataCount / (threadCount);
-        int total = 0;
+    private void runButton1ActionPerformed(java.awt.event.ActionEvent evt) {
+        int threadCount = 1000; // 1-> 9.4M ,  10-> 4.5M, 100-> 5.8M , 1000-> 4.7M
+        List<Complaint> allData = complaintService.getAll();
+        List<List<Complaint>> jobs = threadUtil.divideToJob(allData, threadCount);
         List<TestThread> threads = new ArrayList<>();
-        for (int i = 0; i < threadCount ; i++) {
-            TestThread thread= new TestThread("TestThread"+i, stringUtil, thresholdService, complaintService);
-            thread.setAllData(products);
-            thread.setPartData(complaintService.getCompaniesByPage(i,pageSize));
+
+        TestThread.allData = allData;
+        for (int i = 0; i < threadCount; i++) {
+            TestThread thread = new TestThread("TestThread" + i, stringUtil);
+            thread.setPartData(jobs.get(i));
             threads.add(thread);
         }
 
-        if (dataCount % threadCount!=0){ // fazladan iş kaldıysa
-            int remainingDataCount = dataCount % threadCount;
-            for (int i=0;i<remainingDataCount;i++){
-                threads.get(i).getPartData().add(products.get(dataCount-1-i));
-            }
-        }
-
-        threads.stream().forEach(thread->{
+        threads.parallelStream().forEach(thread -> {
             thread.start();
         });
 
         threadUtil.printProcessTimeByThreads2(threads);
-        List<SimilarityAverage> similarityAverages = new ArrayList<>();
-        threads.stream().forEach(thread->{
-           similarityAverages.addAll(thread.getSimilarityAverages());
+
+        List<Threshold> similarityAverages = new ArrayList<>();
+        threads.stream().forEach(thread -> {
+            similarityAverages.addAll(thread.getThresholds());
         });
 
-        tableUtil.showTable(jTable1,similarityAverages);
+        tableUtil.showTable(jTable1, similarityAverages);
 
 
+    }
 
-    }//GEN-LAST:event_runButton1ActionPerformed
+    private void runButton2ActionPerformed(java.awt.event.ActionEvent evt) throws IOException {//GEN-FIRST:event_runButton2ActionPerformed
+          // csvUtil.createRegularData();
 
-    private void runButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButton2ActionPerformed
-        // TODO add your handling code here:
-        List<Complaint> companies = complaintService.getAllByProduct("Bank account service");
-        System.out.println(companies.size());
+//        long start = System.currentTimeMillis();
+//        start = System.currentTimeMillis();
+//        List<Complaint> complaints = complaintService.getAll();
+//        System.out.println("Postgre: "+complaints.size()+"  Süre:" +(System.currentTimeMillis()-start));
+
+
+        int threadCount = Integer.parseInt(this.threadCount.getText());
+        List<Complaint> allData = complaintService.getAll();
+        Complaint complaint = complaintService.getComplaintById("2433219");
+        List<List<Complaint>> jobs = threadUtil.divideToJob(allData, threadCount);
+        List<ThresholdThread> threads = new ArrayList<>();
+        ThresholdThread.complaint = complaint;
+
+        for (int i = 0; i < threadCount; i++) {
+            ThresholdThread thread = new ThresholdThread("ThresholdThread" + i, stringUtil);
+            thread.setPartData(jobs.get(i));
+            threads.add(thread);
+        }
+
+        threads.parallelStream().forEach(thread -> {
+            thread.start();
+        });
+
+        threadUtil.printProcessTimeByThreads(threads);
+
+        List<Threshold> similarityAverages = new ArrayList<>();
+        threads.stream().forEach(thread -> {
+            similarityAverages.addAll(thread.getThresholds());
+        });
+
+        tableUtil.showTable(jTable1, similarityAverages);
+
     }//GEN-LAST:event_runButton2ActionPerformed
+
 
     /**
      * @param args the command line arguments
@@ -234,5 +249,6 @@ public class Deneme extends javax.swing.JFrame {
     private javax.swing.JButton runButton;
     private javax.swing.JButton runButton1;
     private javax.swing.JButton runButton2;
+    private javax.swing.JTextField threadCount;
     // End of variables declaration//GEN-END:variables
 }
