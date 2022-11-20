@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class StringUtil {
 
 
-    public static final List<String > STOPWORDS = Arrays.asList("a", "as", "able", "about",
+    public static final List<String> STOPWORDS = Arrays.asList("a", "as", "able", "about",
             "above", "after", "afterwards", "again", "against", "aint", "all",
             "allow", "allows", "alone", "along", "already",
             "also", "although", "always", "am", "an",
@@ -128,46 +128,97 @@ public class StringUtil {
         return similarityAverage;
     }
 
-    private static LongData getLongData(String data1, String data2){
+    private static LongData getLongData(String data1, String data2) {
         String[] words1 = data1.split(" ");
         String[] words2 = data2.split(" ");
         int wordCount = words1.length >= words2.length ? words1.length : words2.length;
         int index = words1.length >= words2.length ? 0 : 1;
-        return new LongData(index,wordCount);
+        return new LongData(index, wordCount);
     }
 
-    public List<String> distinctColumn(List<Complaint> allData,String selectedColumn)  {
-       return allData.stream().parallel().map(data -> {
-                   Field field = null;
-                   try {
-                       field = data.getClass().getDeclaredField(selectedColumn);
-                       field.setAccessible(true);
-                       return field.get(data).toString();
-                   } catch (Exception e) {
-                       e.printStackTrace();
-                   }
-                   return null;
-               }).collect(Collectors.toList())
+    public List<String> distinctColumn(List<Complaint> allData, String selectedColumn) {
+        return allData.stream().parallel().map(data -> {
+                    Field field = null;
+                    try {
+                        field = data.getClass().getDeclaredField(selectedColumn);
+                        field.setAccessible(true);
+                        return field.get(data).toString();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }).collect(Collectors.toList())
                 .parallelStream()
                 .distinct()
                 .collect(Collectors.toList());
     }
 
-    public List<Complaint> getComplaintsByProperty(List<Complaint> allData, String selectedColumn, String value){
+    public List<String> distinctColumnWithSet(List<Complaint> allData, String selectedColumn) {
+        Set<String> set = new HashSet<>();
+        switch (selectedColumn) {
+            case "Product":
+                set = allData.parallelStream().map(data->data.getProduct()).collect(Collectors.toSet());
+            break;
+            case "Issue":
+                set = allData.parallelStream().map(data->data.getIssue()).collect(Collectors.toSet());
+            break;
+            case "Company":
+                set = allData.parallelStream().map(data->data.getCompany()).collect(Collectors.toSet());
+            break;
+            case "State":
+                set = allData.parallelStream().map(data->data.getState()).collect(Collectors.toSet());
+                break;
+            case "ZIP Code":
+                set = allData.parallelStream().map(data->data.getZipCode()).collect(Collectors.toSet());
+                break;
+        }
+        return set.stream().collect(Collectors.toList());
+    }
 
-        return allData.parallelStream().map(data->{
-            Field field = null;
-            try {
-                field = data.getClass().getDeclaredField(selectedColumn);
-                field.setAccessible(true);
+    public List<Complaint> getComplaintsByPropertyWithSet(List<Complaint> allData, String selectedColumn, String value) {
+        Set<Complaint> set = new HashSet<>();
+        switch (selectedColumn) {
+            case "Product":
+                set = allData.parallelStream().map(data->getComplaint(data, data.getProduct(), value)).collect(Collectors.toSet());
+                break;
+            case "Issue":
+                set = allData.parallelStream().map(data->getComplaint(data, data.getIssue(), value)).collect(Collectors.toSet());
+                break;
+            case "Company":
+                set = allData.parallelStream().map(data->getComplaint(data, data.getCompany(), value)).collect(Collectors.toSet());
+                break;
+            case "State":
+                set = allData.parallelStream().map(data->getComplaint(data, data.getState(), value)).collect(Collectors.toSet());
+                break;
+            case "ZIP Code":
+                set = allData.parallelStream().map(data->getComplaint(data, data.getZipCode(), value)).collect(Collectors.toSet());
+                break;
+        }
+        set.remove(null);
+        return set.stream().collect(Collectors.toList());
+    }
+    private Complaint getComplaint(Complaint complaint,String data,String value){
+        if (data.equals(value))
+            return complaint;
+    return null;
+    }
 
-                if (field.get(data).toString().equals(value))
-                    return data;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }).collect(Collectors.toList())
+
+    public List<Complaint> getComplaintsByProperty(List<Complaint> allData, String selectedColumn, String value) {
+
+        return allData.parallelStream().map(data -> {
+                    Field field = null;
+                    try {
+                        field = data.getClass().getDeclaredField(selectedColumn);
+                        field.setAccessible(true);
+
+                        if (field.get(data).toString().equals(value))
+                            return data;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }).collect(Collectors.toList())
                 .parallelStream()
                 .filter(complaint -> Objects.nonNull(complaint))
                 .collect(Collectors.toList());

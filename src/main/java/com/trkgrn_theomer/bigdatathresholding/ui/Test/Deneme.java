@@ -161,13 +161,32 @@ public class Deneme extends javax.swing.JFrame {
 
     private void runButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {//GEN-FIRST:event_runButtonActionPerformed
         List<Complaint> allData = complaintService.getAll();
+
         long start = System.currentTimeMillis();
         List<Complaint> complaints = stringUtil.getComplaintsByProperty(allData,"company","TRANSUNION INTERMEDIATE HOLDINGS");
-      //  complaints.removeIf(Objects::isNull);
-        System.out.println(System.currentTimeMillis() - start);
+        complaints.removeIf(Objects::isNull);
+        System.out.println("List:" +(System.currentTimeMillis() - start) + "  Size: "+complaints.size());
+
+        start = System.currentTimeMillis();
+        List<Complaint> complaints2 = stringUtil.getComplaintsByPropertyWithSet(allData,"Company","TRANSUNION INTERMEDIATE HOLDINGS");
+        System.out.println("Set:" +(System.currentTimeMillis() - start) + "  Size: "+complaints2.size());
+
+
+
+//       List<String> products = stringUtil.distinctColumnWithSet(allData,"Company");
+//        System.out.println("Set:" +(System.currentTimeMillis() - start) + "  Size: "+products.size());
+//
+//        start = System.currentTimeMillis();
+//        List<String> products2  = stringUtil.distinctColumn(allData,"company");
+//        System.out.println("List:" +(System.currentTimeMillis() - start) + "  Size: "+products2.size());
+//
+//        start = System.currentTimeMillis();
+//        List<String> products3  = complaintService.getCompanies();
+//        System.out.println("Database:" +(System.currentTimeMillis() - start) + "  Size: "+products3.size());
+
+
 
            //     System.out.println(products);
-        System.out.println(complaints.size());
 
     }//GEN-LAST:event_runButtonActionPerformed
 
@@ -195,7 +214,7 @@ public class Deneme extends javax.swing.JFrame {
             similarityAverages.addAll(thread.getThresholds());
         });
 
-        tableUtil.showTable(jTable1, similarityAverages);
+       // tableUtil.showTableS3(jTable1, similarityAverages);
 
 
     }
@@ -233,7 +252,7 @@ public class Deneme extends javax.swing.JFrame {
             similarityAverages.addAll(thread.getThresholds());
         });
 
-        tableUtil.showTable(jTable1, similarityAverages);
+     //   tableUtil.showTableS3(jTable1, similarityAverages);
 
     }//GEN-LAST:event_runButton2ActionPerformed
 

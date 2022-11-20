@@ -12,7 +12,7 @@ import java.util.List;
 @Component
 public class ThreadUtil {
 
-    private void waitAllThread(List<ThresholdThread> threads) {
+    public void waitAllThread(List<ThresholdThread> threads) {
         threads.stream().forEach(myThread -> {
             try {
                 myThread.join();

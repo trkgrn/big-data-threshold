@@ -19,6 +19,8 @@ public class ThresholdThread extends Thread {
     public static List<Complaint> allData;
     public static Complaint complaint;
     private List<Threshold> thresholds;
+    private double similarity;
+    private String selectedColumn;
 
     private final StringUtil stringUtil;
 
@@ -41,13 +43,49 @@ public class ThresholdThread extends Thread {
     public List<Threshold> calculateSimilarityAverages() {
         List<Threshold> similarities = new ArrayList<>();
 
-        partData.forEach(destination -> {
-                double similarity = stringUtil.getSimilarityAverage(new String[]{complaint.getCompany(), destination.getCompany()});
-                if (similarity >= 0)
-                    similarities.add(new Threshold(complaint, destination, similarity));
-                counter++;
-                  // System.out.println(counter);
-        });
+        switch (this.selectedColumn) {
+            case "Company":
+                partData.forEach(destination -> {
+                    double similarity = stringUtil.getSimilarityAverage(new String[]{complaint.getCompany(), destination.getCompany()});
+                    if (similarity >= this.similarity)
+                        similarities.add(new Threshold(complaint, destination, similarity));
+                    counter++;
+                });
+                break;
+            case "Product":
+                partData.forEach(destination -> {
+                    double similarity = stringUtil.getSimilarityAverage(new String[]{complaint.getProduct(), destination.getProduct()});
+                    if (similarity >= this.similarity)
+                        similarities.add(new Threshold(complaint, destination, similarity));
+                    counter++;
+                });
+                break;
+            case "Issue":
+                partData.forEach(destination -> {
+                    double similarity = stringUtil.getSimilarityAverage(new String[]{complaint.getIssue(), destination.getIssue()});
+                    if (similarity >= this.similarity)
+                        similarities.add(new Threshold(complaint, destination, similarity));
+                    counter++;
+                });
+                break;
+            case "State":
+                partData.forEach(destination -> {
+                    double similarity = stringUtil.getSimilarityAverage(new String[]{complaint.getState(), destination.getState()});
+                    if (similarity >= this.similarity)
+                        similarities.add(new Threshold(complaint, destination, similarity));
+                    counter++;
+                });
+                break;
+            case "ZIP Code":
+                partData.forEach(destination -> {
+                    double similarity = stringUtil.getSimilarityAverage(new String[]{complaint.getZipCode(), destination.getZipCode()});
+                    if (similarity >= this.similarity)
+                        similarities.add(new Threshold(complaint, destination, similarity));
+                    counter++;
+                });
+                break;
+        }
+
         return similarities;
     }
 
