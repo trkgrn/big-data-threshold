@@ -2,6 +2,7 @@ package com.trkgrn_theomer.bigdatathresholding.api.utility;
 
 
 import com.trkgrn_theomer.bigdatathresholding.api.model.concretes.Complaint;
+import com.trkgrn_theomer.bigdatathresholding.api.model.dtos.SimilarityAverage;
 import com.trkgrn_theomer.bigdatathresholding.api.thread.TestThread;
 import com.trkgrn_theomer.bigdatathresholding.api.thread.ThresholdThread;
 import org.springframework.stereotype.Component;
@@ -50,7 +51,7 @@ public class ThreadUtil {
         });
     }
 
-    public List<List<Complaint>> divideToJob(List<Complaint> complaints, int threadCount){
+    public List<List<Complaint>> splitComplaints(List<Complaint> complaints, int threadCount){
         int dataCount = complaints.size();
         int dividedJobCount = dataCount / threadCount;
         int remainingDataCount = dataCount % threadCount;
@@ -65,5 +66,25 @@ public class ThreadUtil {
         System.out.println("Toplam İş: "+total);
         return jobs;
     }
+
+    public List<List<SimilarityAverage>> splitSimilarities(List<SimilarityAverage> similarityAverages, int threadCount){
+        int dataCount = similarityAverages.size();
+        int dividedJobCount = dataCount / threadCount;
+        int remainingDataCount = dataCount % threadCount;
+        List<List<SimilarityAverage>> jobs = new ArrayList<>();
+        for (int i = 0; i < threadCount ; i++) {
+            if (i==threadCount-1 && remainingDataCount != 0)
+                jobs.add(similarityAverages.subList(i*dividedJobCount,dataCount));
+            else
+                jobs.add(similarityAverages.subList(i*dividedJobCount,(i+1)*dividedJobCount));
+        }
+        int total = jobs.stream().mapToInt(List::size).sum();
+      //  jobs.stream().forEach(job-> System.out.println(job.size()));
+        System.out.println("Toplam İş: "+total);
+        return jobs;
+    }
+
+
+
 
 }

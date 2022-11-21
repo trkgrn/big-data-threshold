@@ -193,7 +193,7 @@ public class Deneme extends javax.swing.JFrame {
     private void runButton1ActionPerformed(java.awt.event.ActionEvent evt) {
         int threadCount = 1000; // 1-> 9.4M ,  10-> 4.5M, 100-> 5.8M , 1000-> 4.7M
         List<Complaint> allData = complaintService.getAll();
-        List<List<Complaint>> jobs = threadUtil.divideToJob(allData, threadCount);
+        List<List<Complaint>> jobs = threadUtil.splitComplaints(allData, threadCount);
         List<TestThread> threads = new ArrayList<>();
 
         TestThread.allData = allData;
@@ -231,7 +231,7 @@ public class Deneme extends javax.swing.JFrame {
         int threadCount = Integer.parseInt(this.threadCount.getText());
         List<Complaint> allData = complaintService.getAll();
         Complaint complaint = complaintService.getComplaintById("2433219");
-        List<List<Complaint>> jobs = threadUtil.divideToJob(allData, threadCount);
+        List<List<Complaint>> jobs = threadUtil.splitComplaints(allData, threadCount);
         List<ThresholdThread> threads = new ArrayList<>();
         ThresholdThread.complaint = complaint;
 

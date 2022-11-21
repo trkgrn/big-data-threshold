@@ -2,6 +2,7 @@ package com.trkgrn_theomer.bigdatathresholding.api.utility;
 
 import com.trkgrn_theomer.bigdatathresholding.api.model.concretes.Complaint;
 import com.trkgrn_theomer.bigdatathresholding.api.model.dtos.LongData;
+import com.trkgrn_theomer.bigdatathresholding.api.model.dtos.SimilarityAverage;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 
@@ -157,19 +158,19 @@ public class StringUtil {
         Set<String> set = new HashSet<>();
         switch (selectedColumn) {
             case "Product":
-                set = allData.parallelStream().map(data->data.getProduct()).collect(Collectors.toSet());
-            break;
+                set = allData.parallelStream().map(data -> data.getProduct()).collect(Collectors.toSet());
+                break;
             case "Issue":
-                set = allData.parallelStream().map(data->data.getIssue()).collect(Collectors.toSet());
-            break;
+                set = allData.parallelStream().map(data -> data.getIssue()).collect(Collectors.toSet());
+                break;
             case "Company":
-                set = allData.parallelStream().map(data->data.getCompany()).collect(Collectors.toSet());
-            break;
+                set = allData.parallelStream().map(data -> data.getCompany()).collect(Collectors.toSet());
+                break;
             case "State":
-                set = allData.parallelStream().map(data->data.getState()).collect(Collectors.toSet());
+                set = allData.parallelStream().map(data -> data.getState()).collect(Collectors.toSet());
                 break;
             case "ZIP Code":
-                set = allData.parallelStream().map(data->data.getZipCode()).collect(Collectors.toSet());
+                set = allData.parallelStream().map(data -> data.getZipCode()).collect(Collectors.toSet());
                 break;
         }
         return set.stream().collect(Collectors.toList());
@@ -179,28 +180,29 @@ public class StringUtil {
         Set<Complaint> set = new HashSet<>();
         switch (selectedColumn) {
             case "Product":
-                set = allData.parallelStream().map(data->getComplaint(data, data.getProduct(), value)).collect(Collectors.toSet());
+                set = allData.parallelStream().map(data -> getComplaint(data, data.getProduct(), value)).collect(Collectors.toSet());
                 break;
             case "Issue":
-                set = allData.parallelStream().map(data->getComplaint(data, data.getIssue(), value)).collect(Collectors.toSet());
+                set = allData.parallelStream().map(data -> getComplaint(data, data.getIssue(), value)).collect(Collectors.toSet());
                 break;
             case "Company":
-                set = allData.parallelStream().map(data->getComplaint(data, data.getCompany(), value)).collect(Collectors.toSet());
+                set = allData.parallelStream().map(data -> getComplaint(data, data.getCompany(), value)).collect(Collectors.toSet());
                 break;
             case "State":
-                set = allData.parallelStream().map(data->getComplaint(data, data.getState(), value)).collect(Collectors.toSet());
+                set = allData.parallelStream().map(data -> getComplaint(data, data.getState(), value)).collect(Collectors.toSet());
                 break;
             case "ZIP Code":
-                set = allData.parallelStream().map(data->getComplaint(data, data.getZipCode(), value)).collect(Collectors.toSet());
+                set = allData.parallelStream().map(data -> getComplaint(data, data.getZipCode(), value)).collect(Collectors.toSet());
                 break;
         }
         set.remove(null);
         return set.stream().collect(Collectors.toList());
     }
-    private Complaint getComplaint(Complaint complaint,String data,String value){
+
+    private Complaint getComplaint(Complaint complaint, String data, String value) {
         if (data.equals(value))
             return complaint;
-    return null;
+        return null;
     }
 
 
@@ -223,5 +225,19 @@ public class StringUtil {
                 .filter(complaint -> Objects.nonNull(complaint))
                 .collect(Collectors.toList());
     }
+
+    public List<SimilarityAverage> getSimilarityAverages(List<String> data, double minSimilarity) {
+        List<SimilarityAverage> similarityAverages = new ArrayList<>();
+
+        data.stream().forEach(data1 -> {
+            data.stream().forEach(data2 -> {
+                double similarity = getSimilarityAverage(new String[]{data1, data2});
+                if (similarity >= minSimilarity)
+                    similarityAverages.add(new SimilarityAverage(data1, data2, similarity));
+            });
+        });
+        return similarityAverages;
+    }
+
 
 }
