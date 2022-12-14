@@ -89,11 +89,13 @@ public class ThresholdUI extends javax.swing.JFrame {
         threadCountS3 = new javax.swing.JTextField();
         jLabel12 = new javax.swing.JLabel();
         complaintId = new javax.swing.JTextField();
+        jLabel16 = new javax.swing.JLabel();
+        totalTime = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
 
-        jPanel2.setBackground(new java.awt.Color(204, 204, 255));
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
 
         resultTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -112,12 +114,6 @@ public class ThresholdUI extends javax.swing.JFrame {
             }
         });
         jScrollPane1.setViewportView(resultTable);
-        if (resultTable.getColumnModel().getColumnCount() > 0) {
-            resultTable.getColumnModel().getColumn(0).setResizable(false);
-            resultTable.getColumnModel().getColumn(1).setResizable(false);
-            resultTable.getColumnModel().getColumn(2).setResizable(false);
-            resultTable.getColumnModel().getColumn(3).setResizable(false);
-        }
 
         threadInfoTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -559,19 +555,31 @@ public class ThresholdUI extends javax.swing.JFrame {
 
         jTabbedPane5.addTab("S3", jPanel3);
 
+        jLabel16.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jLabel16.setText("Toplam Geçen Süre:");
+
+        totalTime.setEditable(false);
+        totalTime.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jTabbedPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 637, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 660, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 648, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                .addComponent(jLabel16)
+                                .addGap(18, 18, 18)
+                                .addComponent(totalTime, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(69, 69, 69))))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1308, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                .addContainerGap(16, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -579,9 +587,14 @@ public class ThresholdUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTabbedPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jTabbedPane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel16)
+                            .addComponent(totalTime, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -627,9 +640,12 @@ public class ThresholdUI extends javax.swing.JFrame {
             threads.add(thread);
         }
 
-        threads.forEach(thread->thread.start());
 
+        threads.parallelStream().forEach(thread->thread.start());
+        long start= System.currentTimeMillis();
         threadUtil.printProcessTimeByThreads(threads);
+        long total = System.currentTimeMillis() - start;
+        totalTime.setText(total + " ms");
 
         tableUtil.showThreadTable(threadInfoTable,threads);
 
@@ -681,10 +697,12 @@ public class ThresholdUI extends javax.swing.JFrame {
             threads.add(thread);
         }
 
-        threads.forEach(thread->thread.start());
 
+        threads.parallelStream().forEach(thread->thread.start());
+        long start= System.currentTimeMillis();
         threadUtil.printProcessTimeByThreads(threads);
-
+        long total = System.currentTimeMillis() - start;
+        totalTime.setText(total + " ms");
         tableUtil.showThreadTable(threadInfoTable,threads);
 
         int control = 0;
@@ -729,6 +747,11 @@ public class ThresholdUI extends javax.swing.JFrame {
             threads.parallelStream().forEach(thread -> {
                 thread.start();
             });
+
+            long start= System.currentTimeMillis();
+            threadUtil.printProcessTimeByThreads(threads);
+            long total = System.currentTimeMillis() - start;
+            totalTime.setText(total + " ms");
 
             tableUtil.showThreadTable(threadInfoTable,threads);
 
@@ -935,6 +958,7 @@ public class ThresholdUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -963,5 +987,6 @@ public class ThresholdUI extends javax.swing.JFrame {
     private javax.swing.JTextField thresholdS1;
     private javax.swing.JTextField thresholdS2;
     private javax.swing.JTextField thresholdS3;
+    private javax.swing.JTextField totalTime;
     // End of variables declaration//GEN-END:variables
 }

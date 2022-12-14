@@ -110,7 +110,7 @@ public class TableUtil {
             row[0] = count;
             row[1] = thread.getId();
             row[2] = thread.getName();
-            row[3] = thread.getTotalTime();
+            row[3] = thread.getTotalTime() + " ms";
             model.addRow(row);
         });
         table.removeAll();
@@ -267,20 +267,24 @@ public class TableUtil {
         model.setColumnCount(0);
         model.setRowCount(0);
         model.setColumnIdentifiers(new String[]{
-                "#" , selectedColumn+"-1",selectedColumn+"-2", selectedColumn2+"-1",selectedColumn2+ "-2",desiredColumn+"-1",desiredColumn+ "-2"
+                "#" ,"Kayıt-1","Kayıt-2", selectedColumn+"-1",selectedColumn+"-2","Oran", selectedColumn2+"-1",selectedColumn2+ "-2","Oran",desiredColumn+"-1",desiredColumn+ "-2"
         });
-        Object[] row = new Object[7];
+        Object[] row = new Object[11];
 
         count = 0;
         similarityAverages.forEach(similarityAverage -> {
             count++;
             row[0] = count;
-            row[1] = getProperty(similarityAverage.getOriginComplaint(),selectedColumn);
-            row[2] = getProperty(similarityAverage.getDestinationComplaint(),selectedColumn);;
-            row[3] = getProperty(similarityAverage.getOriginComplaint(),selectedColumn2);
-            row[4] = getProperty(similarityAverage.getDestinationComplaint(),selectedColumn2);
-            row[5] = getProperty(similarityAverage.getOriginComplaint(),desiredColumn);
-            row[6] = getProperty(similarityAverage.getDestinationComplaint(),desiredColumn);
+            row[1] = similarityAverage.getOriginComplaint().getComplaintId();
+            row[2] = similarityAverage.getDestinationComplaint().getComplaintId();
+            row[3] = getProperty(similarityAverage.getOriginComplaint(),selectedColumn);
+            row[4] = getProperty(similarityAverage.getDestinationComplaint(),selectedColumn);;
+            row[5] = similarityAverage.getSimilarityAverage();
+            row[6] = getProperty(similarityAverage.getOriginComplaint(),selectedColumn2);
+            row[7] = getProperty(similarityAverage.getDestinationComplaint(),selectedColumn2);
+            row[8] = similarityAverage.getSimilarityAverage2();
+            row[9] = getProperty(similarityAverage.getOriginComplaint(),desiredColumn);
+            row[10] = getProperty(similarityAverage.getDestinationComplaint(),desiredColumn);
             model.addRow(row);
         });
 
@@ -289,17 +293,21 @@ public class TableUtil {
     }
     public void addRowTableS2(JTable table,List<Threshold> similarityAverages, String selectedColumn,String selectedColumn2, String desiredColumn){
         DefaultTableModel model = (DefaultTableModel) table.getModel();
-        Object[] row = new Object[7];
+        Object[] row = new Object[11];
 
         similarityAverages.forEach(similarityAverage -> {
             count++;
             row[0] = count;
-            row[1] = getProperty(similarityAverage.getOriginComplaint(),selectedColumn);
-            row[2] = getProperty(similarityAverage.getDestinationComplaint(),selectedColumn);;
-            row[3] = getProperty(similarityAverage.getOriginComplaint(),selectedColumn2);
-            row[4] = getProperty(similarityAverage.getDestinationComplaint(),selectedColumn2);
-            row[5] = getProperty(similarityAverage.getOriginComplaint(),desiredColumn);
-            row[6] = getProperty(similarityAverage.getDestinationComplaint(),desiredColumn);
+            row[1] = similarityAverage.getOriginComplaint().getComplaintId();
+            row[2] = similarityAverage.getDestinationComplaint().getComplaintId();
+            row[3] = getProperty(similarityAverage.getOriginComplaint(),selectedColumn);
+            row[4] = getProperty(similarityAverage.getDestinationComplaint(),selectedColumn);;
+            row[5] = similarityAverage.getSimilarityAverage();
+            row[6] = getProperty(similarityAverage.getOriginComplaint(),selectedColumn2);
+            row[7] = getProperty(similarityAverage.getDestinationComplaint(),selectedColumn2);
+            row[8] = similarityAverage.getSimilarityAverage2();
+            row[9] = getProperty(similarityAverage.getOriginComplaint(),desiredColumn);
+            row[10] = getProperty(similarityAverage.getDestinationComplaint(),desiredColumn);
             model.addRow(row);
         });
 

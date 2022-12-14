@@ -126,7 +126,7 @@ public class ThresholdThread extends Thread {
                         if (similarity >= this.similarity){
                             double similarity2 = getSimilarityAverage(origin,destination,selectedColumn2);
                             if (similarity2 >= this.similarity2){
-                                similarities.add(new Threshold(origin, destination, similarity2));
+                                similarities.add(new Threshold(origin, destination,similarity, similarity2));
                             }
                         }
                         counter++;
@@ -140,7 +140,7 @@ public class ThresholdThread extends Thread {
                         if (similarity >= this.similarity){
                             double similarity2 = getSimilarityAverage(origin,destination,selectedColumn2);
                             if (similarity2 >= this.similarity2){
-                                similarities.add(new Threshold(origin, destination, similarity2));
+                                similarities.add(new Threshold(origin, destination,similarity, similarity2));
                             }
                         }
                         counter++;
@@ -154,7 +154,7 @@ public class ThresholdThread extends Thread {
                         if (similarity >= this.similarity){
                             double similarity2 = getSimilarityAverage(origin,destination,selectedColumn2);
                             if (similarity2 >= this.similarity2){
-                                similarities.add(new Threshold(origin, destination, similarity2));
+                                similarities.add(new Threshold(origin, destination,similarity, similarity2));
                             }
                         }
                         counter++;
@@ -168,7 +168,7 @@ public class ThresholdThread extends Thread {
                         if (similarity >= this.similarity){
                             double similarity2 = getSimilarityAverage(origin,destination,selectedColumn2);
                             if (similarity2 >= this.similarity2){
-                                similarities.add(new Threshold(origin, destination, similarity2));
+                                similarities.add(new Threshold(origin, destination,similarity, similarity2));
                             }
                         }
                         counter++;
@@ -182,7 +182,7 @@ public class ThresholdThread extends Thread {
                         if (similarity >= this.similarity){
                             double similarity2 = getSimilarityAverage(origin,destination,selectedColumn2);
                             if (similarity2 >= this.similarity2){
-                                similarities.add(new Threshold(origin, destination, similarity2));
+                                similarities.add(new Threshold(origin, destination,similarity ,similarity2));
                             }
                         }
                         counter++;
